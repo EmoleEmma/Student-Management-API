@@ -17,7 +17,7 @@ class Course(Base):
     lecturer_id: Mapped[int | None] = mapped_column(ForeignKey("lecturers.id", ondelete="SET NULL"))
 
     lecturer: Mapped["Lecturer | None"] = relationship(back_populates="courses")
-    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="course")
+    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="course", cascade="all, delete-orphan")
 
 
 class Enrollment(Base):
@@ -30,7 +30,7 @@ class Enrollment(Base):
 
     student: Mapped[Student] = relationship(back_populates="enrollments")
     course: Mapped[Course] = relationship(back_populates="enrollments")
-    grade: Mapped["Grade | None"] = relationship(back_populates="enrollment", uselist=False)
+    grade: Mapped["Grade | None"] = relationship(back_populates="enrollment", uselist=False, cascade="all, delete-orphan")
 
 
 class Grade(Base):

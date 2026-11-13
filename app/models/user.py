@@ -42,7 +42,7 @@ class Student(Base):
     department: Mapped[str | None] = mapped_column(String(100))
 
     user: Mapped[User] = relationship(back_populates="student")
-    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="student")
+    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="student", cascade="all, delete-orphan")
 
 
 class Lecturer(Base):

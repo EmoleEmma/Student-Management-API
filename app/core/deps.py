@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import decode_access_token
 from app.db.session import get_db
-from app.models.user import Role, User
+from app.models.user import Lecturer, Role, Student, User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -38,3 +38,24 @@ def require_roles(*roles: Role):
         return user
 
     return checker
+
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+AdminUser = Annotated[User, Depends(require_roles(Role.ADMIN))]
+StaffUser = Annotated[User, Depends(require_roles(Role.ADMIN, Role.LECTURER))]
+
+
+def get_student_profile(
+    user: Annotated[User, Depends(require_roles(Role.STUDENT))],
+) -> Student:
+    if user.student is None:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "No student profile is linked to this account")
+    return user.student
+
+
+def get_lecturer_profile(
+    user: Annotated[User, Depends(require_roles(Role.LECTURER))],
+) -> Lecturer:
+    if user.lecturer is None:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "No lecturer profile is linked to this account")
+    return user.lecturer
